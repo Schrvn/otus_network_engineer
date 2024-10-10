@@ -1,1 +1,1 @@
-# otus_network_engineer
+# Репозиторий лабораторных работ курса "Network Engineer. Professional" в OTUS.ru
