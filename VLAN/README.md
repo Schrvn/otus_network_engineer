@@ -216,8 +216,8 @@ S1(config-if)#switchport trunk native vlan 8
 S1(config-if)#switchport trunk allowed vlan 3,4
 ```
 
-Проверить настройки можно командой **show vlan brief**:
-
+Проверить настройки можно командой **show interfaces trunk**:
+```shell
 S1#show interfaces trunk 
 Port        Mode         Encapsulation  Status        Native vlan
 Fa0/1       on           802.1q         trunking      8
@@ -234,7 +234,7 @@ Fa0/5       3,4
 Port        Vlans in spanning tree forwarding state and not pruned
 Fa0/1       3,4
 Fa0/5       3,4
-
+```
 
 #### 2.  Настройка транка на интерфейсе F0/5 коммутатора S1.
 
@@ -243,15 +243,18 @@ Fa0/5       3,4
 3. Выполните команду show interfaces trunk для проверки транкирования.
 
 ##### Пример настройки:
+
+```shell
 S1#conf t
 S1(config-if)#interface FastEthernet0/5
 S1(config-if)# switchport trunk native vlan 8
 S1(config-if)# switchport trunk allowed vlan 3-4
 S1(config-if)# switchport mode trunk
-
+```
 
 С помощью команды **show interfaces trunk** можно посмотреть все тракновые порты. Порта Fa0/5 нет в списке, так как порт Gi0/0/1 маршрутизатора R1 административно выключен, согласно изначальной заводской настройке, применяемой к маршртуизаторам.
 
+```shell
 S1#sh int trunk
 Port        Mode         Encapsulation  Status        Native vlan
 Fa0/1       on           802.1q         trunking      8
@@ -264,7 +267,7 @@ Fa0/1       3,4
 
 Port        Vlans in spanning tree forwarding state and not pruned
 Fa0/1       3,4
-
+```
 
 ### 4. Настройка маршрутизации между VLAN на маршрутизаторе.
 
@@ -273,6 +276,7 @@ Fa0/1       3,4
 3. Используйте команду show ip interface brief, чтобы проверить работоспособность подинтерфейсов.
 
 ##### Пример настройки:
+
 ```shell
 R1#conf t
 R1(config)#interface Gi0/0/1
@@ -296,6 +300,7 @@ R1(config-if)#no ip address
 
 Просмотр краткой информации по интерфейсам с помощью команды **show ip interface brief**:
 
+```shell
 R1#sh ip int brief
 Interface              IP-Address      OK? Method Status                Protocol 
 GigabitEthernet0/0/0   unassigned      YES unset  administratively down down 
@@ -304,7 +309,7 @@ GigabitEthernet0/0/1.3 192.168.3.1     YES manual up                    up
 GigabitEthernet0/0/1.4 192.168.4.1     YES manual up                    up 
 GigabitEthernet0/0/1.8 unassigned      YES unset  up                    up 
 Vlan1                  unassigned      YES unset  administratively down down
-
+```
 
 ### 5. Проверка работоспособности маршрутизации между VLAN
 
@@ -320,6 +325,7 @@ Vlan1                  unassigned      YES unset  administratively down down
 
 ###### a. Пинг с ПК-A на его шлюз по умолчанию.
 
+```shell
 C:\>ping 192.168.3.1
 
 Pinging 192.168.3.1 with 32 bytes of data:
@@ -333,11 +339,12 @@ Ping statistics for 192.168.3.1:
     Packets: Sent = 4, Received = 4, Lost = 0 (0% loss),
 Approximate round trip times in milli-seconds:
     Minimum = 0ms, Maximum = 2ms, Average = 0ms
-
+```
 
 
 ###### b. Пинг с ПК-A на ПК-B
 
+```shell
 C:\>ping 192.168.4.1
 
 Pinging 192.168.4.1 with 32 bytes of data:
@@ -351,11 +358,12 @@ Ping statistics for 192.168.4.1:
     Packets: Sent = 4, Received = 4, Lost = 0 (0% loss),
 Approximate round trip times in milli-seconds:
     Minimum = 0ms, Maximum = 1ms, Average = 0ms
-
+```
 
 
 ###### c. Пинг с ПК-A на S2
 
+```shell
 C:\>ping 192.168.3.12
 
 Pinging 192.168.3.12 with 32 bytes of data:
@@ -369,7 +377,7 @@ Ping statistics for 192.168.3.12:
     Packets: Sent = 4, Received = 3, Lost = 1 (25% loss),
 Approximate round trip times in milli-seconds:
     Minimum = 0ms, Maximum = 0ms, Average = 0ms	
-
+```
 
 
 #### 2. Выполните следующий тест с ПК-Б.
@@ -377,6 +385,8 @@ Approximate round trip times in milli-seconds:
 Вопрос: Какие промежуточные IP-адреса отображаются в результатах?
 
 Вывод команды **tracert 192.168.3.3** с ПК-Б:
+
+```shell
 C:\>tracert 192.168.3.3
 
 Tracing route to 192.168.3.3 over a maximum of 30 hops: 
@@ -385,6 +395,6 @@ Tracing route to 192.168.3.3 over a maximum of 30 hops:
   2   0 ms      0 ms      0 ms      192.168.3.3
 
 Trace complete.	
-
+```
 
 В трассировке виден промежуточный IP-адрес **192.168.4.1**, который является шлюзом для ПК-Б.
