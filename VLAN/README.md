@@ -323,7 +323,7 @@ Vlan1                  unassigned      YES unset  administratively down down
 ##### Пример тестов:
 
 
-###### a. Пинг с ПК-A на его шлюз по умолчанию.
+###### 1. Пинг с ПК-A на его шлюз по умолчанию.
 
 ```shell
 C:\>ping 192.168.3.1
@@ -342,7 +342,7 @@ Approximate round trip times in milli-seconds:
 ```
 
 
-###### b. Пинг с ПК-A на ПК-B
+###### 2. Пинг с ПК-A на ПК-B
 
 ```shell
 C:\>ping 192.168.4.1
@@ -361,7 +361,7 @@ Approximate round trip times in milli-seconds:
 ```
 
 
-###### c. Пинг с ПК-A на S2
+###### 3. Пинг с ПК-A на S2
 
 ```shell
 C:\>ping 192.168.3.12
