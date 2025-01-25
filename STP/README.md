@@ -8,6 +8,7 @@
 
 Топология
 
+
 ![](Topology.png)
 
 Таблица адресации
@@ -427,7 +428,7 @@ VLAN0001
 Interface        Role Sts Cost      Prio.Nbr Type
 ---------------- ---- --- --------- -------- --------------------------------
 Fa0/2            Desg LSN 19        128.2    P2p
-Fa0/4            Root FWD 18        128.4    P2p
+**Fa0/4            Root FWD 18**        128.4    P2p
 
 S2#show spanning-tree 
 VLAN0001
