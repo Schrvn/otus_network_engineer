@@ -322,6 +322,7 @@ Fa0/2            Altn BLK 19        128.2    P2p
 
 ![](STPScheme.png)
 
+
 С учетом выходных данных, поступающих с коммутаторов, ответьте на следующие вопросы.
 
 - Какой коммутатор является корневым мостом? 
@@ -346,4 +347,104 @@ Fa0/2            Altn BLK 19        128.2    P2p
 На коммутаторе S3 альтернативный, заблокированный порт Fa0/2.
 
 - Почему протокол spanning-tree выбрал этот порт в качестве невыделенного (заблокированного) порта?
+Стоимость пути до Root Bridge с портов Fa0/2 коммутатора S3 и Fa0/4 коммутатора S2 больше чем у остальных активных портов и составляет 38(19+19), поэтому выбор происходил между этими двумя портами. Так как коммутатор S2 имеет такой же BID как и коммутатор S3, но мак-адрес у него ниже, соответственно порт Fa0/4(в сторону S3) у него будет Designated, в связи с этим, на S3 по правилам протокола порт должен быть в Alternate Blocking.
+
+Выбор на каком коммутатоторе заблокировать порт происходит по следующей схеме:
+1. Меньшего Root Path Cost.
+2. Меньшего Bridge ID.
+3. Меньшего Port ID.
+
+### 3. Наблюдение за процессом выбора протоколом STP порта, исходя из стоимости портов
+
+Алгоритм протокола spanning-tree (STA) использует корневой мост как точку привязки, после чего определяет, какие порты будут заблокированы, исходя из стоимости пути. Порт с более низкой стоимостью пути является предпочтительным. Если стоимости портов равны, процесс сравнивает BID. Если BID равны, для определения корневого моста используются приоритеты портов. Наиболее низкие значения являются предпочтительными. В части 3 вам предстоит изменить стоимость порта, чтобы определить, какой порт будет заблокирован протоколом spanning-tree.
+
+#### 1. Определите коммутатор с заблокированным портом. 
+
+При текущей конфигурации только один коммутатор может содержать заблокированный протоколом STP порт. Выполните команду show spanning-tree на обоих коммутаторах некорневого моста. В примере ниже протокол spanning-tree блокирует порт Fa0/2 на коммутаторе с самым высоким идентификатором BID (S3).
+```shell
+S2#show spanning-tree 
+VLAN0001
+  Spanning tree enabled protocol ieee
+  Root ID    Priority    32769
+             Address     0000.0C40.360E
+             Cost        19
+             Port        2(FastEthernet0/2)
+             Hello Time  2 sec  Max Age 20 sec  Forward Delay 15 sec
+
+  Bridge ID  Priority    32769  (priority 32768 sys-id-ext 1)
+             Address     **0001.63B8.3655**
+             Hello Time  2 sec  Max Age 20 sec  Forward Delay 15 sec
+             Aging Time  20
+
+Interface        Role Sts Cost      Prio.Nbr Type
+---------------- ---- --- --------- -------- --------------------------------
+Fa0/2            Root FWD 19        128.2    P2p
+**Fa0/4            Desg** FWD 19        128.4    P2p
+
+
+S3#show spanning-tree 
+VLAN0001
+  Spanning tree enabled protocol ieee
+  Root ID    Priority    32769
+             Address     0000.0C40.360E
+             Cost        19
+             Port        4(FastEthernet0/4)
+             Hello Time  2 sec  Max Age 20 sec  Forward Delay 15 sec
+
+  Bridge ID  Priority    32769  (priority 32768 sys-id-ext 1)
+             Address     **00D0.D3B7.E4B7**
+             Hello Time  2 sec  Max Age 20 sec  Forward Delay 15 sec
+             Aging Time  20
+
+Interface        Role Sts Cost      Prio.Nbr Type
+---------------- ---- --- --------- -------- --------------------------------
+**Fa0/2            Altn** BLK 19        128.2    P2p
+Fa0/4            Root FWD 19        128.4    P2p
+```
+#### 2. Измените стоимость порта. 
+```shell
+S3#conf t
+S3(config)#interface Fa0/4
+S3(config-if)#spanning-tree cost 18
+```
+#### 3. Просмотрите изменения протокола spanning-tree. 
+```shell
+S3#show spanning-tree 
+VLAN0001
+  Spanning tree enabled protocol ieee
+  Root ID    Priority    32769
+             Address     0000.0C40.360E
+             Cost        18
+             Port        4(FastEthernet0/4)
+             Hello Time  2 sec  Max Age 20 sec  Forward Delay 15 sec
+
+  Bridge ID  Priority    32769  (priority 32768 sys-id-ext 1)
+             Address     00D0.D3B7.E4B7
+             Hello Time  2 sec  Max Age 20 sec  Forward Delay 15 sec
+             Aging Time  20
+
+Interface        Role Sts Cost      Prio.Nbr Type
+---------------- ---- --- --------- -------- --------------------------------
+Fa0/2            Desg LSN 19        128.2    P2p
+Fa0/4            Root FWD 18        128.4    P2p
+
+S2#show spanning-tree 
+VLAN0001
+  Spanning tree enabled protocol ieee
+  Root ID    Priority    32769
+             Address     0000.0C40.360E
+             Cost        19
+             Port        2(FastEthernet0/2)
+             Hello Time  2 sec  Max Age 20 sec  Forward Delay 15 sec
+
+  Bridge ID  Priority    32769  (priority 32768 sys-id-ext 1)
+             Address     0001.63B8.3655
+             Hello Time  2 sec  Max Age 20 sec  Forward Delay 15 sec
+             Aging Time  20
+
+Interface        Role Sts Cost      Prio.Nbr Type
+---------------- ---- --- --------- -------- --------------------------------
+Fa0/2            Root FWD 19        128.2    P2p
+**Fa0/4            Altn BLK** 19        128.4    P2p
+```
 
